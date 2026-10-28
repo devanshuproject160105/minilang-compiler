@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniLang - AI-Assisted Visual Compiler Pipeline</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="brand">
+      <i class="fas fa-microchip"></i>
+      <span>MiniLang Compiler</span>
+      <span class="brand-badge">Visual Pipeline 2.0</span>
+    </div>
+
+    <div class="nav-actions">
+      <select id="example-select" class="select-dropdown">
+        <option value="" disabled selected>Loading examples...</option>
+      </select>
+
+      <button id="btn-compile" class="btn btn-primary" title="Compile through all phases">
+        <i class="fas fa-hammer"></i> Compile
+      </button>
+
+      <button id="btn-run" class="btn btn-success" title="Compile and Execute">
+        <i class="fas fa-play"></i> Run
+      </button>
+
+      <button id="btn-ai-generate" class="btn btn-purple" title="Natural Language to MiniLang Code">
+        <i class="fas fa-wand-magic-sparkles"></i> AI Prompt
+      </button>
+
+      <button id="btn-opt-hints" class="btn" title="AI Optimization Advice">
+        <i class="fas fa-lightbulb"></i> Hints
+      </button>
+    </div>
+  </header>
+
+  <!-- Horizontal Compiler Pipeline Stage Bar -->
+  <nav class="pipeline-bar">
+    <div class="stage-step active" data-stage="tokens" title="Stage 1: Lexical Analysis">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>1. Lexer</span>
+    </div>
+    <i class="fas fa-chevron-right stage-arrow"></i>
+
+    <div class="stage-step" data-stage="ast" title="Stage 2: Syntax Analysis & AST Construction">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>2. Parser (AST)</span>
+    </div>
+    <i class="fas fa-chevron-right stage-arrow"></i>
+
+    <div class="stage-step" data-stage="semantic" title="Stage 3: Scoped Symbol Table & Type Checking">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>3. Semantics</span>
+    </div>
+    <i class="fas fa-chevron-right stage-arrow"></i>
+
+    <div class="stage-step" data-stage="ir" title="Stage 4: Three-Address Code (TAC) Generation">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>4. TAC IR</span>
+    </div>
+    <i class="fas fa-chevron-right stage-arrow"></i>
+
+    <div class="stage-step" data-stage="optimizer" title="Stage 5: Constant Folding & Dead Code Elimination">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>5. Optimizer</span>
+    </div>
+    <i class="fas fa-chevron-right stage-arrow"></i>
+
+    <div class="stage-step" data-stage="codegen" title="Stage 6: Stack-based Bytecode Emission">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>6. Bytecode</span>
+    </div>
+    <i class="fas fa-chevron-right stage-arrow"></i>
+
+    <div class="stage-step" data-stage="vm" title="Stage 7: Virtual Machine Runtime & Debugger">
+      <i class="fas fa-circle-notch stage-icon"></i>
+      <span>7. VM Runtime</span>
+    </div>
+  </nav>
+
+  <!-- Main IDE Split Layout -->
+  <main class="main-layout">
+    
+    <!-- LEFT PANE: Source Code Editor -->
+    <section class="left-pane">
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <span style="font-size:0.8rem; font-weight:600; color:var(--text-bright);">
+            <i class="fas fa-code" style="color:var(--accent-color); margin-right:4px;"></i> source.mlang
+          </span>
+        </div>
+
+        <div class="toolbar-group">
+          <button id="btn-explain-error" class="btn" title="Explain current error in plain English">
+            <i class="fas fa-stethoscope" style="color:var(--error-color);"></i> Explain Error
+          </button>
+          <button id="btn-explain-stage" class="btn" title="Explain what this stage did">
+            <i class="fas fa-graduation-cap" style="color:var(--cyan-color);"></i> Explain Stage
+          </button>
+        </div>
+      </div>
+
+      <!-- Editor area with synced line numbers -->
+      <div class="editor-container">
+        <div id="line-numbers" class="line-numbers"></div>
+        <textarea id="code-editor" class="code-textarea" spellcheck="false" placeholder="// Write MiniLang code here..."></textarea>
+      </div>
+
+      <!-- Error Notification Banner -->
+      <div id="error-banner" class="error-banner">
+        <div id="error-title" class="error-title"></div>
+        <div id="error-message"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: Visual Pipeline Tabs -->
+    <section class="right-pane">
+
+      <!-- TAB 1: TOKENS -->
+      <div id="tab-tokens" class="tab-pane active">
+        <div class="pane-header">
+          <span>Lexical Tokens Stream</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Tokens scanned with line & column offsets</span>
+        </div>
+        <div class="pane-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 150px;">Token Type</th>
+                <th>Lexeme</th>
+                <th style="width: 70px;">Line</th>
+                <th style="width: 70px;">Column</th>
+              </tr>
+            </thead>
+            <tbody id="tokens-table-body">
+              <tr><td colspan="5" class="empty-state" style="text-align:center; padding:30px;">Click Compile to tokenize source code</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: INTERACTIVE AST -->
+      <div id="tab-ast" class="tab-pane">
+        <div class="pane-header">
+          <span>Abstract Syntax Tree (Interactive D3)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Click node to collapse/expand &bull; Scroll to zoom &bull; Drag to pan</span>
+        </div>
+        <div class="pane-body" style="padding:0; position:relative;">
+          <div id="ast-tree-container"></div>
+        </div>
+      </div>
+
+      <!-- TAB 3: SCOPED SYMBOL TABLE -->
+      <div id="tab-semantic" class="tab-pane">
+        <div class="pane-header">
+          <span>Scoped Symbol Table Hierarchy</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Static scopes, variable types & function signatures</span>
+        </div>
+        <div id="symbol-table-container" class="pane-body">
+          <div class="empty-state" style="text-align:center; padding:30px;">Symbol table will appear after semantic analysis</div>
+        </div>
+      </div>
+
+      <!-- TAB 4: TAC IR -->
+      <div id="tab-ir" class="tab-pane">
+        <div class="pane-header">
+          <span>Three-Address Code (TAC IR)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Linear quadruples with explicit temporary variables and jump labels</span>
+        </div>
+        <div class="pane-body" style="display:flex; flex-direction:column; gap:10px;">
+          <div id="ir-diff-view" class="ir-diff-container"></div>
+          <div id="ir-rule-logs"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: OPTIMIZER -->
+      <div id="tab-optimizer" class="tab-pane">
+        <div class="pane-header">
+          <span>IR Optimization Diff & Rule Firings</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Side-by-side comparison with fired optimization rules</span>
+        </div>
+        <div class="pane-body" style="display:flex; flex-direction:column; gap:10px;">
+          <div style="font-size:0.8rem; color:var(--text-muted);">
+            Comparing unoptimized vs optimized TAC IR. Changed or eliminated instructions are highlighted below:
+          </div>
+          <!-- Re-uses diff container layout for optimizer focus -->
+          <div style="flex:1;" class="ir-diff-container" id="optimizer-diff-view">
+            <!-- Populated via ir_diff.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: BYTECODE -->
+      <div id="tab-codegen" class="tab-pane">
+        <div class="pane-header">
+          <span>Stack-based Bytecode Assembly</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Resolved instruction pointers and stack operations</span>
+        </div>
+        <div class="pane-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">Address</th>
+                <th style="width: 160px;">Opcode</th>
+                <th>Operands</th>
+                <th>Annotation</th>
+              </tr>
+            </thead>
+            <tbody id="bytecode-table-body">
+              <tr><td colspan="4" class="empty-state" style="text-align:center; padding:30px;">Bytecode will be generated during codegen phase</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 7: VM RUNTIME & DEBUGGER -->
+      <div id="tab-vm" class="tab-pane">
+        <div class="pane-header">
+          <span>Virtual Machine Execution Debugger</span>
+          <div>
+            Status: <span id="vm-status-badge" class="badge">READY</span>
+          </div>
+        </div>
+
+        <div class="pane-body" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Controls Toolbar -->
+          <div class="vm-controls">
+            <button id="btn-step" class="btn btn-primary" title="Step one instruction forward">
+              <i class="fas fa-step-forward"></i> Step Next
+            </button>
+            <button id="btn-auto-step" class="btn" title="Step automatically with delay">
+              <i class="fas fa-play"></i> Auto Step
+            </button>
+            <button id="btn-reset-vm" class="btn" title="Reset VM to starting state">
+              <i class="fas fa-rotate-left"></i> Reset VM
+            </button>
+          </div>
+
+          <!-- VM State 3-column Grid -->
+          <div class="vm-grid">
+            <!-- Column 1: Bytecode Instructions with IP highlight -->
+            <div class="vm-col">
+              <div class="vm-col-title">
+                <span><i class="fas fa-list-ol"></i> Bytecode Instructions</span>
+              </div>
+              <div id="vm-bytecode-list" class="bytecode-list"></div>
+            </div>
+
+            <!-- Column 2: Operand Stack -->
+            <div class="vm-col">
+              <div class="vm-col-title">
+                <span><i class="fas fa-layer-group"></i> Operand Stack</span>
+              </div>
+              <div id="vm-stack-display" class="stack-display">
+                <div class="empty-state">Stack is empty</div>
+              </div>
+            </div>
+
+            <!-- Column 3: Variables & Call Frames -->
+            <div class="vm-col">
+              <div class="vm-col-title">
+                <span><i class="fas fa-database"></i> Environment & Call Frames</span>
+              </div>
+              <div style="flex:1; overflow-y:auto; padding:8px;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">CALL FRAMES</div>
+                <div id="vm-call-stack"></div>
+
+                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:12px; margin-bottom:6px;">VARIABLES</div>
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Identifier</th>
+                      <th>Value</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vm-var-table-body">
+                    <tr><td colspan="2" class="empty-state">No variables yet</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- VM Console Output Box -->
+          <div>
+            <div style="font-size:0.78rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+              <i class="fas fa-terminal"></i> CONSOLE OUTPUT
+            </div>
+            <div id="vm-console-output" class="console-box"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- AI Modal Window -->
+  <div id="ai-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="ai-modal-title">AI Assistant</span>
+        <button id="btn-close-modal" class="modal-close">&times;</button>
+      </div>
+      <div id="ai-modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <button onclick="document.getElementById('ai-modal').classList.remove('visible')" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- D3.js v7 CDN -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- Application Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/ast_viewer.js"></script>
+  <script src="/static/js/ir_diff.js"></script>
+  <script src="/static/js/vm_visualizer.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

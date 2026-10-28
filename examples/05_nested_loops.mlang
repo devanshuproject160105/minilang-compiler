@@ -1,0 +1,32 @@
+// Example 5: Nested Loops and Matrix Accumulator
+// Demonstrates for-loops, while-loops, nested control flow, and nested scopes.
+
+print("--- 5x5 Multiplication Table & Accumulator ---");
+
+let total_sum = 0;
+
+for (let row = 1; row <= 5; row = row + 1) {
+    let row_sum = 0;
+    for (let col = 1; col <= 5; col = col + 1) {
+        let product = row * col;
+        row_sum = row_sum + product;
+    }
+    print("Row", row, "sum is:", row_sum);
+    total_sum = total_sum + row_sum;
+}
+
+print("Total sum of multiplication matrix:", total_sum);
+
+print("--- Nested Star Triangle Pattern ---");
+let height = 5;
+let r = 1;
+while (r <= height) {
+    let line = "";
+    let c = 1;
+    while (c <= r) {
+        line = line + "*";
+        c = c + 1;
+    }
+    print(line);
+    r = r + 1;
+}

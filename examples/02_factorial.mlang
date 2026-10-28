@@ -1,0 +1,33 @@
+// Example 2: Factorial Function
+// Demonstrates recursive functions, base cases, conditionals, and return values.
+
+fn factorial_recursive(n: int) -> int {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial_recursive(n - 1);
+}
+
+fn factorial_iterative(n: int) -> int {
+    let result = 1;
+    let i = 1;
+    while (i <= n) {
+        result = result * i;
+        i = i + 1;
+    }
+    return result;
+}
+
+let num: int = 5;
+let rec_ans = factorial_recursive(num);
+let iter_ans = factorial_iterative(num);
+
+print("Computing factorial for:", num);
+print("Recursive result:", rec_ans);
+print("Iterative result:", iter_ans);
+
+if (rec_ans == iter_ans) {
+    print("Verification succeeded: both implementations match!");
+} else {
+    print("Verification failed!");
+}

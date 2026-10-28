@@ -1,0 +1,25 @@
+// Example 1: Hello World and Basic Arithmetic
+// Demonstrates variable declarations, type inference, arithmetic, and print statements.
+
+let greeting: string = "Hello, Compiler World!";
+print(greeting);
+
+let a: int = 15;
+let b: int = 4;
+let sum = a + b;
+let diff = a - b;
+let product = a * b;
+let quotient = a / b;
+let remainder = a % b;
+
+print("Values:", a, b);
+print("Sum:", sum);
+print("Difference:", diff);
+print("Product:", product);
+print("Quotient:", quotient);
+print("Remainder:", remainder);
+
+let pi: float = 3.14159;
+let radius: float = 2.5;
+let area = pi * radius * radius;
+print("Circle area with radius 2.5 is:", area);

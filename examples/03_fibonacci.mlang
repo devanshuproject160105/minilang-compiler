@@ -1,0 +1,29 @@
+// Example 3: Fibonacci Sequence
+// Demonstrates while loops, sequential state updates, and procedural execution.
+
+fn fibonacci(n: int) -> int {
+    if (n <= 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    let prev = 0;
+    let curr = 1;
+    let count = 2;
+    while (count <= n) {
+        let temp = prev + curr;
+        prev = curr;
+        curr = temp;
+        count = count + 1;
+    }
+    return curr;
+}
+
+print("Fibonacci sequence first 10 terms:");
+let idx = 0;
+while (idx < 10) {
+    let term = fibonacci(idx);
+    print("fib(", idx, ") =", term);
+    idx = idx + 1;
+}
